@@ -882,6 +882,12 @@
             <div class="mini-stat"><span>Ideal monthly return</span><strong id="sip-statIdealMonthly">0.00%</strong></div>
             <div class="mini-stat"><span>Real monthly return</span><strong id="sip-statNetMonthly">0.00%</strong></div>
           </div>
+          <div class="stats-grid">
+            <div class="mini-stat"><span>Expense loss</span><strong id="sip-statExpenseLoss">&#8377;0</strong></div>
+            <div class="mini-stat"><span>Tax loss</span><strong id="sip-statTaxLoss">&#8377;0</strong></div>
+            <div class="mini-stat"><span>Inflation loss</span><strong id="sip-statInflationLoss">&#8377;0</strong></div>
+            <div class="mini-stat"><span>After-tax value</span><strong id="sip-statAfterTax">&#8377;0</strong></div>
+          </div>
         </div>
       </div>
 
@@ -1618,8 +1624,8 @@
         totalInvested += monthlySip;
         yearlyInvested += monthlySip;
 
-        idealCorpus = (idealCorpus + monthlySip) * (1 + idealMonthlyRate);
-        realCorpus = (realCorpus + monthlySip) * (1 + netMonthlyRate);
+        idealCorpus = (idealCorpus * (1 + idealMonthlyRate)) + monthlySip;
+        realCorpus = (realCorpus * (1 + netMonthlyRate)) + monthlySip;
 
         chartIdeal.push({ x: month + 1, y: idealCorpus });
         chartReal.push({ x: month + 1, y: realCorpus });
@@ -1825,6 +1831,10 @@
       document.getElementById("sip-statNetAnnual").textContent = formatPercent(result.effectiveAnnualReturn * 100);
       document.getElementById("sip-statIdealMonthly").textContent = formatPercent(result.idealMonthlyRate * 100);
       document.getElementById("sip-statNetMonthly").textContent = formatPercent(result.netMonthlyRate * 100);
+      document.getElementById("sip-statExpenseLoss").textContent = formatCurrency(result.expenseLoss);
+      document.getElementById("sip-statTaxLoss").textContent = formatCurrency(result.taxLoss);
+      document.getElementById("sip-statInflationLoss").textContent = formatCurrency(result.inflationLoss);
+      document.getElementById("sip-statAfterTax").textContent = formatCurrency(result.afterTax);
 
       renderSipTable(comparison);
       drawLineChart("sipChart", {
@@ -1999,7 +2009,7 @@
     function simulateLoanScenario(inputs, extraMonthly) {
       const principal = inputs.amount;
       const months = Math.max(1, Math.round(inputs.tenureYears * 12));
-      const monthlyRate = inputs.annualRate / 1200;
+      const monthlyRate = inputs.annualRate / 12 / 100;
       const emi = computeEmi(principal, monthlyRate, months);
 
       let balance = principal;
