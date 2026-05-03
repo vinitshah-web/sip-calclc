@@ -1,890 +1,259 @@
 <!DOCTYPE html>
+<html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced SIP Calculator</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --bg-elevated: rgba(15, 23, 42, 0.88);
-      --card: rgba(19, 29, 52, 0.92);
-      --card-soft: rgba(26, 39, 70, 0.8);
-      --border: rgba(148, 163, 184, 0.18);
-      --text: #e5ecff;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #4ade80;
-      --warn: #f59e0b;
-      --danger: #fb7185;
-      --shadow: 0 20px 60px rgba(2, 6, 23, 0.45);
-      --radius: 22px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 30%),
-        radial-gradient(circle at top right, rgba(74, 222, 128, 0.12), transparent 28%),
-        linear-gradient(180deg, #0b1020 0%, #060911 100%);
-      color: var(--text);
-    }
-
-    body {
-      padding: 28px;
-    }
-
-    .app {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: grid;
-      gap: 24px;
-    }
-
-    .hero,
-    .panel,
-    .table-panel,
-    .chart-panel {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    .hero {
-      padding: 28px;
-      display: grid;
-      gap: 22px;
-    }
-
-    .hero-text h1 {
-      margin: 0 0 10px;
-      font-size: clamp(2rem, 3vw, 3.2rem);
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-    }
-
-    .hero-text p {
-      margin: 0;
-      color: var(--muted);
-      max-width: 760px;
-      line-height: 1.6;
-    }
-
-    .input-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
-
-    .field {
-      padding: 16px;
-      border-radius: 18px;
-      background: var(--card-soft);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-      display: grid;
-      gap: 10px;
-    }
-
-    .field label {
-      font-size: 0.95rem;
-      color: var(--muted);
-    }
-
-    .field input {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      border-radius: 14px;
-      background: rgba(10, 16, 31, 0.85);
-      color: var(--text);
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .field input:focus {
-      border-color: rgba(56, 189, 248, 0.75);
-      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 999px;
-      padding: 13px 20px;
-      font-size: 0.98rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-    }
-
-    .primary-btn {
-      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-      color: #02111d;
-      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.28);
-    }
-
-    .secondary-btn {
-      background: rgba(148, 163, 184, 0.12);
-      color: var(--text);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-    }
-
-    .panel {
-      padding: 24px;
-      display: grid;
-      gap: 18px;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .section-head h2 {
-      margin: 0;
-      font-size: 1.4rem;
-    }
-
-    .section-head p {
-      margin: 6px 0 0;
-      color: var(--muted);
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .card .label {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .card .value {
-      font-size: clamp(1.35rem, 2vw, 2rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-    }
-
-    .card .subtext {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    .value-accent {
-      color: var(--accent);
-    }
-
-    .value-success {
-      color: var(--accent-2);
-    }
-
-    .value-warn {
-      color: var(--warn);
-    }
-
-    .value-danger {
-      color: var(--danger);
-    }
-
-    .stats-strip {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-    }
-
-    .mini-stat {
-      padding: 14px 16px;
-      background: rgba(15, 23, 42, 0.72);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
-
-    .mini-stat strong,
-    .mini-stat span {
-      display: block;
-    }
-
-    .mini-stat span {
-      color: var(--muted);
-      margin-bottom: 5px;
-      font-size: 0.9rem;
-    }
-
-    .table-panel,
-    .chart-panel {
-      padding: 24px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(8, 13, 26, 0.65);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 760px;
-    }
-
-    th, td {
-      padding: 14px 16px;
-      text-align: right;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-      white-space: nowrap;
-    }
-
-    th:first-child,
-    td:first-child {
-      text-align: left;
-    }
-
-    th {
-      background: rgba(19, 29, 52, 0.88);
-      color: #cbd5e1;
-      font-size: 0.92rem;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    tbody tr:hover {
-      background: rgba(56, 189, 248, 0.06);
-    }
-
-    .chart-shell {
-      position: relative;
-      width: 100%;
-      min-height: 420px;
-      background: rgba(8, 13, 26, 0.7);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
-    }
-
-    #growthChart {
-      width: 100%;
-      height: 390px;
-      display: block;
-    }
-
-    .legend {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .swatch {
-      width: 18px;
-      height: 3px;
-      border-radius: 999px;
-    }
-
-    .ideal-line {
-      background: var(--accent);
-    }
-
-    .real-line {
-      background: var(--accent-2);
-    }
-
-    .empty-state {
-      color: var(--muted);
-      padding: 18px 2px 0;
-    }
-
-    .footer-note {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 16px;
-      }
-
-      .hero,
-      .panel,
-      .table-panel,
-      .chart-panel {
-        padding: 18px;
-      }
-
-      .chart-shell {
-        min-height: 320px;
-      }
-
-      #growthChart {
-        height: 290px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="app">
-    <section class="hero">
-      <div class="hero-text">
-        <h1>Advanced SIP Calculator</h1>
-        <p>
-          Simulate ideal vs real SIP growth with yearly step-up, expense drag, tax on gains,
-          and inflation-adjusted purchasing power. The calculator runs month by month so the
-          projection feels closer to how disciplined investing actually compounds.
-        </p>
-      </div>
-
-      <form id="sipForm">
-        <div class="input-grid">
-          <div class="field">
-            <label for="monthlySip">Monthly SIP Amount (₹)</label>
-            <input id="monthlySip" name="monthlySip" type="number" min="0" step="100" value="10000" required>
-          </div>
-
-          <div class="field">
-            <label for="durationYears">Investment Duration (Years)</label>
-            <input id="durationYears" name="durationYears" type="number" min="0" step="1" value="20" required>
-          </div>
-
-          <div class="field">
-            <label for="annualReturn">Expected Annual Return (%)</label>
-            <input id="annualReturn" name="annualReturn" type="number" min="0" step="0.1" value="12" required>
-          </div>
-
-          <div class="field">
-            <label for="stepUpRate">Annual Step-Up Rate (%)</label>
-            <input id="stepUpRate" name="stepUpRate" type="number" min="0" step="0.1" value="10" required>
-          </div>
-
-          <div class="field">
-            <label for="expenseRatio">Expense Ratio (% per year)</label>
-            <input id="expenseRatio" name="expenseRatio" type="number" min="0" step="0.01" value="1.5" required>
-          </div>
-
-          <div class="field">
-            <label for="inflationRate">Inflation Rate (% per year)</label>
-            <input id="inflationRate" name="inflationRate" type="number" min="0" step="0.1" value="6" required>
-          </div>
-
-          <div class="field">
-            <label for="taxRate">Tax Rate on Gains (%)</label>
-            <input id="taxRate" name="taxRate" type="number" min="0" step="0.1" value="10" required>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PulseX India Dashboard</title>
+    <meta
+      name="description"
+      content="Professional finance dashboard frontend structure for Indian stock market tracking."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Sidebar navigation">
+        <div class="brand-block">
+          <div class="brand-orb" aria-hidden="true"></div>
+          <div class="brand-copy">
+            <p class="brand-tag">Market Intelligence</p>
+            <h1 class="brand-title">PulseX India</h1>
           </div>
         </div>
 
-        <div class="actions">
-          <button class="primary-btn" type="submit">Calculate SIP</button>
-          <button class="secondary-btn" type="button" id="resetBtn">Reset Defaults</button>
-        </div>
-      </form>
-    </section>
+        <nav class="sidebar-nav">
+          <ul>
+            <li><a class="active" href="#dashboard">Dashboard</a></li>
+            <li><a href="#markets">Markets</a></li>
+            <li><a href="#watchlist">Watchlist</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#analytics">Analytics</a></li>
+            <li><a href="#settings">Settings</a></li>
+          </ul>
+        </nav>
 
-    <section class="panel">
-      <div class="section-head">
-        <div>
-          <h2>Final Values</h2>
-          <p>Compare ideal compounding against the more realistic outcome after costs and taxes.</p>
-        </div>
-      </div>
+        <section class="sidebar-card">
+          <p class="section-kicker">Daily Brief</p>
+          <h3 id="dailyBriefHeadline">
+            Indian equities are holding risk-on momentum with leadership from energy and financials.
+          </h3>
+          <p id="dailyBriefBody">
+            Keep this area for alerts, macro notes, or account-level summary widgets in the next phase.
+          </p>
+        </section>
+      </aside>
 
-      <div class="stats-strip">
-        <div class="mini-stat">
-          <span>Ideal annual return</span>
-          <strong id="idealRateStat">0.00%</strong>
-        </div>
-        <div class="mini-stat">
-          <span>Net annual return</span>
-          <strong id="netRateStat">0.00%</strong>
-        </div>
-        <div class="mini-stat">
-          <span>Ideal monthly return</span>
-          <strong id="idealMonthlyStat">0.00%</strong>
-        </div>
-        <div class="mini-stat">
-          <span>Net monthly return</span>
-          <strong id="netMonthlyStat">0.00%</strong>
-        </div>
-      </div>
+      <main class="main-layout">
+        <header class="topbar">
+          <div class="topbar-copy">
+            <p class="section-kicker">Indian Equities Dashboard</p>
+            <h2>Professional Finance Workspace</h2>
+            <p class="topbar-subcopy">
+              Monitor benchmark indices, core holdings, and watchlist momentum from a single premium view.
+            </p>
+          </div>
 
-      <div class="cards" id="finalCards">
-        <div class="card">
-          <div class="label">Total Invested</div>
-          <div class="value" id="totalInvestedCard">₹0</div>
-          <div class="subtext">Total contribution across the full SIP period, including yearly step-ups.</div>
-        </div>
-        <div class="card">
-          <div class="label">Final Corpus (Ideal)</div>
-          <div class="value value-accent" id="idealCorpusCard">₹0</div>
-          <div class="subtext">No expense ratio, no tax, no inflation adjustment.</div>
-        </div>
-        <div class="card">
-          <div class="label">Final Corpus (Real, Pre-Tax)</div>
-          <div class="value value-success" id="realCorpusCard">₹0</div>
-          <div class="subtext">After expense ratio drag, before tax on gains.</div>
-        </div>
-        <div class="card">
-          <div class="label">After Tax Value</div>
-          <div class="value value-warn" id="afterTaxCard">₹0</div>
-          <div class="subtext">Tax is applied only on positive gains.</div>
-        </div>
-        <div class="card">
-          <div class="label">Inflation Adjusted Value</div>
-          <div class="value value-danger" id="realValueCard">₹0</div>
-          <div class="subtext">Purchasing-power equivalent after inflation erosion.</div>
-        </div>
-      </div>
-    </section>
+          <div class="topbar-tools">
+            <form class="search-bar" id="searchForm" role="search" autocomplete="off">
+              <label class="search-label" for="stock-search">Search Stocks</label>
+              <input id="stock-search" type="search" placeholder="Search company or symbol" />
+              <div class="search-results hidden" id="searchResults" role="listbox"></div>
+            </form>
 
-    <section class="panel">
-      <div class="section-head">
-        <div>
-          <h2>Loss Breakdown</h2>
-          <p>See how much value gets shaved off by fund costs, taxes, and inflation over time.</p>
-        </div>
-      </div>
+            <div class="market-status">
+              <span class="status-dot"></span>
+              <span id="marketStatusText">Live Mock Feed</span>
+            </div>
+          </div>
+        </header>
 
-      <div class="cards">
-        <div class="card">
-          <div class="label">Loss Due to Expense Ratio</div>
-          <div class="value value-accent" id="expenseLossCard">₹0</div>
-          <div class="subtext">Difference between ideal corpus and real corpus before tax.</div>
-        </div>
-        <div class="card">
-          <div class="label">Loss Due to Tax</div>
-          <div class="value value-warn" id="taxLossCard">₹0</div>
-          <div class="subtext">Difference between pre-tax real corpus and after-tax value.</div>
-        </div>
-        <div class="card">
-          <div class="label">Loss Due to Inflation</div>
-          <div class="value value-danger" id="inflationLossCard">₹0</div>
-          <div class="subtext">Difference between after-tax value and inflation-adjusted value.</div>
-        </div>
-      </div>
+        <section class="ticker-section" aria-label="Top stock ticker">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Ticker</p>
+              <h3>Top Stock Ticker</h3>
+            </div>
+            <p class="section-note" id="tickerTimestamp">Refreshing...</p>
+          </header>
 
-      <p class="footer-note" id="insightLine">
-        Enter values above to generate your SIP projection.
-      </p>
-    </section>
+          <div class="ticker-track" id="tickerTrack">
+            <article class="ticker-item skeleton-card"></article>
+            <article class="ticker-item skeleton-card"></article>
+            <article class="ticker-item skeleton-card"></article>
+            <article class="ticker-item skeleton-card"></article>
+            <article class="ticker-item skeleton-card"></article>
+          </div>
+        </section>
 
-    <section class="table-panel">
-      <div class="section-head">
-        <div>
-          <h2>Year-Wise Breakdown</h2>
-          <p>Annual contribution and portfolio progression across both ideal and real scenarios.</p>
-        </div>
-      </div>
+        <section id="dashboard" class="dashboard-section">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Dashboard</p>
+              <h3>Market Overview</h3>
+            </div>
+          </header>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Year</th>
-              <th>SIP Invested In Year</th>
-              <th>Total Invested Till Date</th>
-              <th>Portfolio Value (Ideal)</th>
-              <th>Portfolio Value (Real)</th>
-            </tr>
-          </thead>
-          <tbody id="breakdownBody"></tbody>
-        </table>
-      </div>
-      <div class="empty-state" id="tableEmptyState">No yearly data yet.</div>
-    </section>
+          <div class="dashboard-cards" id="dashboardCards">
+            <article class="dashboard-card skeleton-card"></article>
+            <article class="dashboard-card skeleton-card"></article>
+            <article class="dashboard-card skeleton-card"></article>
+            <article class="dashboard-card skeleton-card"></article>
+          </div>
+        </section>
 
-    <section class="chart-panel">
-      <div class="section-head">
-        <div>
-          <h2>Growth Curves</h2>
-          <p>Canvas chart comparing ideal growth with the real portfolio path after expense drag.</p>
-        </div>
-      </div>
+        <section id="markets" class="content-section">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Markets</p>
+              <h3>Chart and Trend Structure</h3>
+            </div>
+          </header>
 
-      <div class="chart-shell">
-        <canvas id="growthChart"></canvas>
-      </div>
-      <div class="legend">
-        <div class="legend-item">
-          <span class="swatch ideal-line"></span>
-          <span>Ideal Growth</span>
-        </div>
-        <div class="legend-item">
-          <span class="swatch real-line"></span>
-          <span>Real Growth</span>
-        </div>
-      </div>
-    </section>
-  </div>
+          <div class="market-grid">
+            <article class="panel chart-panel">
+              <header class="panel-header">
+                <div>
+                  <p class="panel-kicker">Price Action</p>
+                  <h4 id="chartTitle">Research Chart</h4>
+                </div>
+                <div class="timeframe-group" id="timeframeGroup">
+                  <button data-timeframe="3M" type="button">3M</button>
+                  <button data-timeframe="6M" type="button">6M</button>
+                  <button class="is-active" data-timeframe="1Y" type="button">1Y</button>
+                  <button data-timeframe="2Y" type="button">2Y</button>
+                </div>
+              </header>
 
-  <script>
-    const defaults = {
-      monthlySip: 10000,
-      durationYears: 20,
-      annualReturn: 12,
-      stepUpRate: 10,
-      expenseRatio: 1.5,
-      inflationRate: 6,
-      taxRate: 10
-    };
+              <div class="compare-chips" id="compareChips"></div>
 
-    const form = document.getElementById("sipForm");
-    const resetBtn = document.getElementById("resetBtn");
-    const breakdownBody = document.getElementById("breakdownBody");
-    const tableEmptyState = document.getElementById("tableEmptyState");
-    const chartCanvas = document.getElementById("growthChart");
+              <div class="chart-canvas-shell">
+                <canvas id="marketChart" aria-label="Market comparison chart"></canvas>
+              </div>
 
-    const cardTargets = {
-      totalInvested: document.getElementById("totalInvestedCard"),
-      idealCorpus: document.getElementById("idealCorpusCard"),
-      realCorpus: document.getElementById("realCorpusCard"),
-      afterTax: document.getElementById("afterTaxCard"),
-      realValue: document.getElementById("realValueCard"),
-      expenseLoss: document.getElementById("expenseLossCard"),
-      taxLoss: document.getElementById("taxLossCard"),
-      inflationLoss: document.getElementById("inflationLossCard"),
-      idealRateStat: document.getElementById("idealRateStat"),
-      netRateStat: document.getElementById("netRateStat"),
-      idealMonthlyStat: document.getElementById("idealMonthlyStat"),
-      netMonthlyStat: document.getElementById("netMonthlyStat"),
-      insightLine: document.getElementById("insightLine")
-    };
+              <div class="chart-metrics" id="chartMetrics"></div>
+            </article>
 
-    function readNumber(id) {
-      const value = Number(document.getElementById(id).value);
-      return Number.isFinite(value) ? value : 0;
-    }
+            <article class="panel market-depth-panel">
+              <header class="panel-header">
+                <div>
+                  <p class="panel-kicker">Market Depth</p>
+                  <h4>Key Snapshot</h4>
+                </div>
+              </header>
 
-    function sanitizeInputs() {
-      const inputs = {
-        monthlySip: Math.max(0, readNumber("monthlySip")),
-        durationYears: Math.max(0, Math.round(readNumber("durationYears"))),
-        annualReturn: Math.max(0, readNumber("annualReturn")),
-        stepUpRate: Math.max(0, readNumber("stepUpRate")),
-        expenseRatio: Math.max(0, readNumber("expenseRatio")),
-        inflationRate: Math.max(0, readNumber("inflationRate")),
-        taxRate: Math.min(100, Math.max(0, readNumber("taxRate")))
-      };
+              <div class="depth-list" id="depthList"></div>
+            </article>
+          </div>
+        </section>
 
-      document.getElementById("durationYears").value = inputs.durationYears;
-      return inputs;
-    }
+        <section id="watchlist" class="content-section">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Watchlist</p>
+              <h3>Tracked Stocks</h3>
+            </div>
+          </header>
 
-    function annualToMonthlyRate(annualRateDecimal) {
-      const effectiveBase = Math.max(0, 1 + annualRateDecimal);
-      return Math.pow(effectiveBase, 1 / 12) - 1;
-    }
+          <article class="panel watchlist-panel">
+            <header class="panel-header">
+              <h4>Watchlist Table</h4>
+            </header>
 
-    function formatCurrency(value) {
-      return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0
-      }).format(Number.isFinite(value) ? value : 0);
-    }
+            <div class="watchlist-table" id="watchlistTable"></div>
+          </article>
+        </section>
 
-    function formatPercent(value) {
-      return `${(Number.isFinite(value) ? value : 0).toFixed(2)}%`;
-    }
+        <section id="portfolio" class="content-section">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Portfolio</p>
+              <h3>Holdings Summary</h3>
+            </div>
+          </header>
 
-    function simulateSip(inputs) {
-      const annualReturn = inputs.annualReturn / 100;
-      const expenseRatio = inputs.expenseRatio / 100;
-      const stepUpRate = inputs.stepUpRate / 100;
-      const inflationRate = inputs.inflationRate / 100;
-      const taxRate = inputs.taxRate / 100;
+          <div class="portfolio-layout">
+            <article class="panel portfolio-summary-panel">
+              <header class="panel-header">
+                <h4>Portfolio Summary</h4>
+              </header>
 
-      const idealMonthlyRate = annualToMonthlyRate(annualReturn);
-      // Expense ratio reduces the gross annual growth multiplicatively.
-      const effectiveAnnualReturn = ((1 + annualReturn) * (1 - expenseRatio)) - 1;
-      const netMonthlyRate = annualToMonthlyRate(effectiveAnnualReturn);
-      const totalMonths = inputs.durationYears * 12;
+              <div class="summary-cards" id="portfolioSummary"></div>
+            </article>
 
-      let totalInvested = 0;
-      let idealCorpus = 0;
-      let realCorpus = 0;
-      let yearlyInvested = 0;
+            <article class="panel portfolio-table-panel">
+              <header class="panel-header">
+                <h4>Portfolio Holdings</h4>
+              </header>
 
-      const rows = [];
-      const chartPoints = [{ month: 0, ideal: 0, real: 0 }];
+              <div class="portfolio-table" id="portfolioTable"></div>
+            </article>
+          </div>
+        </section>
 
-      for (let month = 0; month < totalMonths; month += 1) {
-        const yearIndex = Math.floor(month / 12);
-        const monthlySip = inputs.monthlySip * Math.pow(1 + stepUpRate, yearIndex);
+        <section id="analytics" class="content-section">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Analytics</p>
+              <h3>Strategy and Research</h3>
+            </div>
+          </header>
 
-        totalInvested += monthlySip;
-        yearlyInvested += monthlySip;
+          <div class="analytics-grid">
+            <article class="panel simple-panel">
+              <div class="panel-header">
+                <h4>Golden Crossover Backtest</h4>
+              </div>
+              <div id="strategyPanel"></div>
+            </article>
 
-        // Contributions are added first, then the portfolio is grown for the month.
-        idealCorpus = (idealCorpus + monthlySip) * (1 + idealMonthlyRate);
-        realCorpus = (realCorpus + monthlySip) * (1 + netMonthlyRate);
+            <article class="panel simple-panel">
+              <div class="panel-header">
+                <h4>Research Analyst View</h4>
+              </div>
+              <div id="researchPanel"></div>
+            </article>
+          </div>
+        </section>
 
-        chartPoints.push({
-          month: month + 1,
-          ideal: idealCorpus,
-          real: realCorpus
-        });
+        <section id="settings" class="content-section">
+          <header class="section-header">
+            <div>
+              <p class="section-kicker">Settings</p>
+              <h3>Workspace Configuration</h3>
+            </div>
+          </header>
 
-        const isYearEnd = (month + 1) % 12 === 0;
-        const isLastMonth = month === totalMonths - 1;
+          <article class="panel simple-panel">
+            <div class="settings-list">
+              <div class="setting-item">
+                <span>Feed Mode</span>
+                <strong id="feedModeLabel">Hybrid Mock / API-Ready</strong>
+              </div>
+              <div class="setting-item">
+                <span>Refresh Interval</span>
+                <strong>Every 12 seconds</strong>
+              </div>
+              <div class="setting-item">
+                <span>Active Universe</span>
+                <strong id="activeUniverseLabel">5 tracked stocks</strong>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
 
-        if (isYearEnd || isLastMonth) {
-          rows.push({
-            year: yearIndex + 1,
-            investedThisYear: yearlyInvested,
-            totalInvested,
-            idealValue: idealCorpus,
-            realValue: realCorpus
-          });
-          yearlyInvested = 0;
-        }
-      }
+    <div class="toast-stack" id="toastStack"></div>
 
-      const gains = Math.max(0, realCorpus - totalInvested);
-      const taxAmount = gains * taxRate;
-      const afterTax = realCorpus - taxAmount;
-      const inflationFactor = Math.pow(1 + inflationRate, inputs.durationYears);
-      const inflationAdjustedValue = inflationFactor > 0 ? afterTax / inflationFactor : afterTax;
-
-      return {
-        inputs,
-        totalInvested,
-        idealCorpus,
-        realCorpus,
-        afterTax,
-        inflationAdjustedValue,
-        expenseLoss: Math.max(0, idealCorpus - realCorpus),
-        taxLoss: Math.max(0, realCorpus - afterTax),
-        inflationLoss: Math.max(0, afterTax - inflationAdjustedValue),
-        idealMonthlyRate,
-        effectiveAnnualReturn,
-        netMonthlyRate,
-        rows,
-        chartPoints
-      };
-    }
-
-    function renderCards(result) {
-      cardTargets.totalInvested.textContent = formatCurrency(result.totalInvested);
-      cardTargets.idealCorpus.textContent = formatCurrency(result.idealCorpus);
-      cardTargets.realCorpus.textContent = formatCurrency(result.realCorpus);
-      cardTargets.afterTax.textContent = formatCurrency(result.afterTax);
-      cardTargets.realValue.textContent = formatCurrency(result.inflationAdjustedValue);
-      cardTargets.expenseLoss.textContent = formatCurrency(result.expenseLoss);
-      cardTargets.taxLoss.textContent = formatCurrency(result.taxLoss);
-      cardTargets.inflationLoss.textContent = formatCurrency(result.inflationLoss);
-
-      cardTargets.idealRateStat.textContent = formatPercent(result.inputs.annualReturn);
-      cardTargets.netRateStat.textContent = formatPercent(result.effectiveAnnualReturn * 100);
-      cardTargets.idealMonthlyStat.textContent = formatPercent(result.idealMonthlyRate * 100);
-      cardTargets.netMonthlyStat.textContent = formatPercent(result.netMonthlyRate * 100);
-
-      const uplift = result.totalInvested > 0
-        ? ((result.afterTax / result.totalInvested) - 1) * 100
-        : 0;
-
-      cardTargets.insightLine.textContent =
-        `Invested ${formatCurrency(result.totalInvested)} over ${result.inputs.durationYears} year(s). ` +
-        `After costs and tax, the portfolio reaches ${formatCurrency(result.afterTax)}, ` +
-        `which is a ${uplift.toFixed(2)}% change over invested capital before inflation adjustment.`;
-    }
-
-    function renderTable(rows) {
-      breakdownBody.innerHTML = "";
-
-      if (!rows.length) {
-        tableEmptyState.textContent = "No yearly data yet.";
-        return;
-      }
-
-      tableEmptyState.textContent = "";
-
-      rows.forEach((row) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.year}</td>
-          <td>${formatCurrency(row.investedThisYear)}</td>
-          <td>${formatCurrency(row.totalInvested)}</td>
-          <td>${formatCurrency(row.idealValue)}</td>
-          <td>${formatCurrency(row.realValue)}</td>
-        `;
-        breakdownBody.appendChild(tr);
-      });
-    }
-
-    function drawChart(points) {
-      const rect = chartCanvas.getBoundingClientRect();
-      const width = Math.max(300, Math.floor(rect.width));
-      const height = Math.max(260, Math.floor(rect.height));
-      const dpr = window.devicePixelRatio || 1;
-
-      chartCanvas.width = width * dpr;
-      chartCanvas.height = height * dpr;
-
-      const ctx = chartCanvas.getContext("2d");
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, width, height);
-
-      const padding = { top: 20, right: 22, bottom: 48, left: 68 };
-      const chartWidth = width - padding.left - padding.right;
-      const chartHeight = height - padding.top - padding.bottom;
-
-      ctx.fillStyle = "#08111f";
-      ctx.fillRect(0, 0, width, height);
-
-      if (!points.length || chartWidth <= 0 || chartHeight <= 0) {
-        return;
-      }
-
-      const maxMonth = points[points.length - 1].month || 1;
-      const maxValue = Math.max(
-        1,
-        ...points.map((point) => Math.max(point.ideal, point.real))
-      );
-
-      const xForMonth = (month) => padding.left + (month / maxMonth) * chartWidth;
-      const yForValue = (value) => padding.top + chartHeight - (value / maxValue) * chartHeight;
-
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.12)";
-      ctx.lineWidth = 1;
-
-      for (let i = 0; i <= 5; i += 1) {
-        const y = padding.top + (chartHeight / 5) * i;
-        ctx.beginPath();
-        ctx.moveTo(padding.left, y);
-        ctx.lineTo(width - padding.right, y);
-        ctx.stroke();
-      }
-
-      for (let i = 0; i <= 6; i += 1) {
-        const x = padding.left + (chartWidth / 6) * i;
-        ctx.beginPath();
-        ctx.moveTo(x, padding.top);
-        ctx.lineTo(x, height - padding.bottom);
-        ctx.stroke();
-      }
-
-      ctx.strokeStyle = "rgba(203, 213, 225, 0.45)";
-      ctx.beginPath();
-      ctx.moveTo(padding.left, padding.top);
-      ctx.lineTo(padding.left, height - padding.bottom);
-      ctx.lineTo(width - padding.right, height - padding.bottom);
-      ctx.stroke();
-
-      const drawSeries = (key, stroke, fillTop) => {
-        ctx.beginPath();
-        points.forEach((point, index) => {
-          const x = xForMonth(point.month);
-          const y = yForValue(point[key]);
-          if (index === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
-        });
-
-        ctx.strokeStyle = stroke;
-        ctx.lineWidth = 2.8;
-        ctx.stroke();
-
-        ctx.lineTo(xForMonth(points[points.length - 1].month), height - padding.bottom);
-        ctx.lineTo(xForMonth(points[0].month), height - padding.bottom);
-        ctx.closePath();
-        ctx.fillStyle = fillTop;
-        ctx.fill();
-      };
-
-      drawSeries("ideal", "rgba(56, 189, 248, 1)", "rgba(56, 189, 248, 0.08)");
-      drawSeries("real", "rgba(74, 222, 128, 1)", "rgba(74, 222, 128, 0.08)");
-
-      ctx.fillStyle = "#cbd5e1";
-      ctx.font = "12px Segoe UI";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-
-      for (let i = 0; i <= 5; i += 1) {
-        const value = maxValue - (maxValue / 5) * i;
-        const y = padding.top + (chartHeight / 5) * i;
-        ctx.fillText(formatCurrency(value), padding.left - 10, y);
-      }
-
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      for (let i = 0; i <= 6; i += 1) {
-        const month = Math.round((maxMonth / 6) * i);
-        const x = padding.left + (chartWidth / 6) * i;
-        ctx.fillText(`${month}m`, x, height - padding.bottom + 10);
-      }
-    }
-
-    function calculateAndRender() {
-      const inputs = sanitizeInputs();
-      const result = simulateSip(inputs);
-      renderCards(result);
-      renderTable(result.rows);
-      drawChart(result.chartPoints);
-    }
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      calculateAndRender();
-    });
-
-    resetBtn.addEventListener("click", () => {
-      Object.entries(defaults).forEach(([key, value]) => {
-        const input = document.getElementById(key);
-        if (input) {
-          input.value = value;
-        }
-      });
-      calculateAndRender();
-    });
-
-    window.addEventListener("resize", () => {
-      calculateAndRender();
-    });
-
-    calculateAndRender();
-  </script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script type="module" src="./js/app.js"></script>
+  </body>
 </html>
+
